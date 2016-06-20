@@ -10,7 +10,6 @@ import UIKit
 import MessageUI
 import GameController
 
-
 class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSource,MFMailComposeViewControllerDelegate {
     
     @IBOutlet weak var tableView: UITableView!
