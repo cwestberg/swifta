@@ -10,6 +10,24 @@ import UIKit
 import MessageUI
 import GameController
 
+extension Double {
+    /// Rounds the double to decimal places value
+//    mutating func roundToPlaces(places:Int) -> Double {
+//        let divisor = pow(10.0, Double(places))
+//        return round((self * divisor) / divisor)
+//    }
+}
+extension String {
+    var doubleValue: Double? {
+        return Double(self)
+    }
+    var floatValue: Float? {
+        return Float(self)
+    }
+    var integerValue: Int? {
+        return Int(self)
+    }
+}
 class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSource,MFMailComposeViewControllerDelegate {
     
     @IBOutlet weak var tableView: UITableView!
@@ -57,46 +75,52 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     var outTimeStepperValue = 0.0
 
     
-//    let tapRec = UITapGestureRecognizer()
+    let tapRec = UITapGestureRecognizer()
     
     
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
         distanceSegmentedControl.selectedSegmentIndex = 1
         pgtaValueSegmentedControl.selectedSegmentIndex = 1
-        speedLbl.text = "\(Int(speedStepper.value))"
+        speedLbl.text = "\(speedStepper.value)"
+//        speedLbl.text = "\(Int(speedStepper.value))"
         nextSpeedLbl.text = "\(Int(speedStepper.value))"
-        self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.controllerDidConnect(_:)), name: "GCControllerDidConnectNotification", object: nil)
+//        NotificationCenter.default().addObserver(self, selector: #selector), name: "GCControllerDidConnectNotification", object: nil)
+         NotificationCenter.default.addObserver(self, selector: #selector(ViewController.controllerDidConnect), name: NSNotification.Name(rawValue: "GCControllerDidConnectNotification"), object: nil)
         
-        minusTenthBtn.layer.borderColor = UIColor.blueColor().CGColor
+//        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.controllerDidConnect), name: "GCControllerDidConnectNotification" as NSNotification.Name, object: nil)
+       
+        
+        minusTenthBtn.layer.borderColor = UIColor.blue.cgColor
         minusTenthBtn.layer.borderWidth = 1
         minusTenthBtn.layer.cornerRadius = 20
-        plus01btn.layer.borderColor = UIColor.blueColor().CGColor
+        plus01btn.layer.borderColor = UIColor.blue.cgColor
         plus01btn.layer.borderWidth = 1
         plus01btn.layer.cornerRadius = 20
-        minus01btn.layer.borderColor = UIColor.blueColor().CGColor
+        minus01btn.layer.borderColor = UIColor.blue.cgColor
         minus01btn.layer.borderWidth = 1
         minus01btn.layer.cornerRadius = 20
-        plus001btn.layer.borderColor = UIColor.blueColor().CGColor
+        plus001btn.layer.borderColor = UIColor.blue.cgColor
         plus001btn.layer.borderWidth = 1
         plus001btn.layer.cornerRadius = 20
-        minus001btn.layer.borderColor = UIColor.blueColor().CGColor
+        minus001btn.layer.borderColor = UIColor.blue.cgColor
         minus001btn.layer.borderWidth = 1
         minus001btn.layer.cornerRadius = 20
 
 
-//        tapRec.addTarget(self, action: #selector(ViewController.tappedView))
-//        self.view.addGestureRecognizer(tapRec)
-//        self.view.userInteractionEnabled = true
+        tapRec.addTarget(self, action: #selector(ViewController.tappedView))
+        self.view.addGestureRecognizer(tapRec)
+        self.view.isUserInteractionEnabled = true
 
 
-        _ = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self,
+        _ = Timer.scheduledTimer(timeInterval: 0.1, target: self,
                                                    selector: #selector(ViewController.updateTimeLabel), userInfo: nil, repeats: true)
-        self.nextMinuteBtn(self)
+        self.nextMinuteBtn(sender: self)
 
     }
 
@@ -106,44 +130,66 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     }
 
     func tappedView() {
-        plusOmBtn(self)
+        splitBtn(sender: self)
     }
     
 //    Updating
     func updateTimeLabel() {
         tod = NSDate()
         let secondsToAdd = (timeAdjustStepper.value * 0.1)
-        tod = tod.dateByAddingTimeInterval(Double(secondsToAdd))
+        tod = tod.addingTimeInterval(Double(secondsToAdd))
         
         let currentDate = NSDate()
-        let calendar = NSCalendar.currentCalendar()
-        let dateComponents = calendar.components([NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year, NSCalendarUnit.WeekOfYear, NSCalendarUnit.Hour, NSCalendarUnit.Minute, NSCalendarUnit.Second, NSCalendarUnit.Nanosecond], fromDate: currentDate)
+        let calendar = Calendar.current
+//        let dateComponents = calendar.components([Calendar.Unit.day, Calendar.Unit.month, Calendar.Unit.year, Calendar.Unit.weekOfYear, Calendar.Unit.hour, Calendar.Unit.minute, Calendar.Unit.second, Calendar.Unit.nanosecond], from: currentDate as Date)
         
-        let millisecond = Int(Double(dateComponents.nanosecond)/1000000)
-        let mytime = dateComponents.second * 1000 + millisecond
+        let dateComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: currentDate as Date)
+        
+        let millisecond = Int(Double(dateComponents.nanosecond!)/1000000)
+        let mytime = dateComponents.second! * 1000 + millisecond
         let cents = trunc((Double(mytime) * 1.66667)/1000)
         
-        let unit = Double(dateComponents.second)
+        let unit = Double(dateComponents.second!)
         let second = Int(unit)
         let secondString = String(format: "%02d", second)
         
         let centString = String(format: "%02d", Int(cents))
-        let minuteString = String(format: "%02d", dateComponents.minute)
+        let minuteString = String(format: "%02d", dateComponents.minute!)
         switch timeUnit {
         case "seconds":
-            todLbl.text = "\(dateComponents.hour):\(minuteString):\(secondString)"
+            todLbl.text = "\(dateComponents.hour!):\(minuteString):\(secondString)"
         case "cents":
-            todLbl.text = "\(dateComponents.hour):\(minuteString).\(centString)"
+            todLbl.text = "\(dateComponents.hour!):\(minuteString).\(centString)"
         default:
             break;
         }
         
         calcComputedDistance()
+        
+        let interval = outTime.timeIntervalSince(self.tod as Date)
+        if interval > 0 {
+            let calendar = Calendar.current
+//            let datecomponenets = calendar.components(Calendar.Unit.second, from: tod as Date, to: outTime as Date)
+            let datecomponenets = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: outTime as Date)
+
+            let seconds = datecomponenets.second
+            print("Seconds: \(seconds!) \(Int(Double(seconds!)/60.0)) \(60 - (second % 60)) \(interval)")
+            if interval > 0.9 {
+//                TODO zero pad secs
+                let secondString = String(format: "%02d", 60 - second)
+                deltaLbl.text = "in \(Int(Double(interval)/60.0)):\(secondString)"
+//                deltaLbl.text = "in \(Int(Double(seconds!)/60.0)):\(secondString)"
+            }
+            else {
+                deltaLbl.text = "Go!"
+            }
+        }
+
 
     }
     
     func calcComputedDistance(){
-        computedDistance += (tod.timeIntervalSinceDate(lastCalcTime)/3600 * speed)
+        computedDistance += (tod.timeIntervalSince(lastCalcTime as Date)/3600 * speed)
         lastCalcTime = tod
         computedDistance = (computedDistance - (pauses/36 * speed))
         pauses = 0
@@ -159,9 +205,9 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     }
     
     func updateDelta() {
-        let ti = Int(round(tod.timeIntervalSinceDate(self.ctc)))
+        let ti = Int(round(tod.timeIntervalSince(self.ctc as Date)))
         
-        let interval = ctc.timeIntervalSinceDate(self.tod)
+        let interval = ctc.timeIntervalSince(self.tod as Date)
         var sign = "+"
         if interval < 0.0 {
             sign = "-"
@@ -171,39 +217,39 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         switch timeUnit {
         case "seconds":
             if interval > 0.0 {
-                var secs = abs(Int((interval % 60)))
+                var secs = abs(Int((interval .truncatingRemainder(dividingBy: 60) )))
                 if secs == 60 {
                     secs = 0
                 }
-                deltaLbl.text = NSString(format: "\(sign)%0.2d:%0.2d",minutes,secs) as String
+                deltaLbl.text = NSString(format: "\(sign)%0.2d:%0.2d" as NSString,minutes,secs) as String
             }
             if interval <=  0.1 {
-                var secs = abs(Int((interval % 60) ))
+                var secs = abs(Int((interval .truncatingRemainder(dividingBy: 60)) ))
                 if secs == 60 {
                     secs = 0
                 }
-                deltaLbl.text = NSString(format: "\(sign)%0.2d:%0.2d",minutes,secs) as String
+                deltaLbl.text = NSString(format: "\(sign)%0.2d:%0.2d" as NSString,minutes,secs) as String
             }
             
             
         case "cents":
             if interval > 0.0 {
-                let cents = (interval % 60.0) * 1.6667
+                let cents = (interval .truncatingRemainder(dividingBy: 60)) * 1.6667
                 var cs = abs(Int(cents))
 
                 if cs == 100 {
                     cs = 0
                 }
-                deltaLbl.text = NSString(format: "\(sign)%0.2d.%0.2d",minutes,cs) as String
+                deltaLbl.text = NSString(format: "\(sign)%0.2d.%0.2d" as NSString,minutes,cs) as String
             }
             if interval <=  0.1 {
-                let cents = (interval % 60.0) * 1.6667
+                let cents = (interval.truncatingRemainder(dividingBy: 60)) * 1.6667
                 var cs = abs(Int(cents - 1.0))
                 
                 if cs == 100 {
                     cs = 0
                 }
-                deltaLbl.text = NSString(format: "\(sign)%0.2d.%0.2d",minutes,cs) as String
+                deltaLbl.text = NSString(format: "\(sign)%0.2d.%0.2d" as NSString,minutes,cs) as String
             }
 
         default:
@@ -215,28 +261,36 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     
     func computeTime() {
         computedTime += (60.0/speed) * (om - lastCalcOm)
+        print("computedTime \(computedTime)")
         lastCalcOm = om
         computedTimeLbl.text = String(format: "%0.4f", computedTime)
         
         let minutesToAdd = trunc(computedTime)
         var secondsToAdd = minutesToAdd * 60
-        secondsToAdd += ((computedTime % 1.0) * 0.6) * 100
-        let units = computedTime % 1.0 * 1000
+        secondsToAdd += ((computedTime .truncatingRemainder(dividingBy: 1.0)) * 0.6) * 100
+        var units = computedTime .truncatingRemainder(dividingBy: 1.0) * 1000
         
-        let ctcTime = self.outTime.dateByAddingTimeInterval(Double(secondsToAdd))
-        let calendar = NSCalendar.currentCalendar()
+        let ctcTime = self.outTime.addingTimeInterval(Double(secondsToAdd))
+        let calendar = Calendar.current
 
-        let dateComponents = calendar.components([NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year, NSCalendarUnit.WeekOfYear, NSCalendarUnit.Hour, NSCalendarUnit.Minute, NSCalendarUnit.Second, NSCalendarUnit.Nanosecond], fromDate: ctcTime)
+//        let dateComponents = calendar.components([Calendar.Unit.day, Calendar.Unit.month, Calendar.Unit.year, Calendar.Unit.weekOfYear, Calendar.Unit.hour, Calendar.Unit.minute, Calendar.Unit.second, Calendar.Unit.nanosecond], from: ctcTime as Date)
         
-        let minStr = String(format: "%02d", dateComponents.minute)
-        if timeUnit == "cents" {
+        let dateComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: ctcTime as Date)
+        
+        let minStr = String(format: "%02d", dateComponents.minute!)
+        if units < 0.0 {
+            units = units + 1000.01
+            print("units \(units) secs \(units * 0.6)")
+        }
+        if isCents() {
 //            let centStr = String(format: "%02d", Int((Double(dateComponents.second) * 1.66667)))
+
             let centStr = String(format: "%03d", Int(units))
-            self.ctcLbl.text = "\(dateComponents.hour):\(minStr).\(centStr)"
+            self.ctcLbl.text = "\(dateComponents.hour!):\(minStr).\(centStr)"
         } else {
 //            let secStr = String(format: "%02d", dateComponents.second)
             let secStr = String(format: "%03d",Int(units * 0.6))
-            self.ctcLbl.text = "\(dateComponents.hour):\(minStr):\(secStr)"
+            self.ctcLbl.text = "\(dateComponents.hour!):\(minStr):\(secStr)"
         }
         ctc = ctcTime
         updateDelta()
@@ -244,15 +298,13 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
 //    outTime
     @IBAction func outTimeStepper(sender: AnyObject) {
         if outTimeStepper.value > outTimeStepperValue {
-            nextMinuteBtn(self)
+            nextMinuteBtn(sender: self)
         }
         else if outTimeStepper.value < outTimeStepperValue {
-            prevMinuteBtn(self)
+            prevMinuteBtn(sender: self)
         }
         outTimeStepperValue = 0.0
         outTimeStepper.value = 0.0
-
-
     }
 
     @IBAction func nextMinuteBtn(sender: AnyObject) {
@@ -271,35 +323,83 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         updateDelta()
     }
     
+    @IBAction func nowBtn(_ sender: AnyObject) {
+        zeroOmBtn(sender: self)
+        roundStartDateToNextMinuteNow()
+        computeTime()
+        computedDistanceChange()
+        outTimeStepperValue = 0.0
+        outTimeStepper.value = 0.0
+    }
+    
+    
     func roundStartDateToNextMinute(){
-        let calendar = NSCalendar.currentCalendar()
-        var dateComponents = calendar.components([NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year, NSCalendarUnit.WeekOfYear, NSCalendarUnit.Hour, NSCalendarUnit.Minute, NSCalendarUnit.Second, NSCalendarUnit.Nanosecond], fromDate: self.outTime)
-        let secondsToAdd = 60 - dateComponents.second
-        let timePlusOneMinute = self.outTime.dateByAddingTimeInterval(Double(secondsToAdd))
-        dateComponents = calendar.components([NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year, NSCalendarUnit.WeekOfYear, NSCalendarUnit.Hour, NSCalendarUnit.Minute, NSCalendarUnit.Second, NSCalendarUnit.Nanosecond], fromDate: timePlusOneMinute)
+        let calendar = Calendar.current
+//        var dateComponents = calendar.components([Calendar.Unit.day, Calendar.Unit.month, Calendar.Unit.year, Calendar.Unit.weekOfYear, Calendar.Unit.hour, Calendar.Unit.minute, Calendar.Unit.second, Calendar.Unit.nanosecond], from: self.outTime as Date)
         
-        let minStr = String(format: "%02d", dateComponents.minute)
+        var dateComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: self.outTime as Date)
+
+        let secondsToAdd = 60 - dateComponents.second!
+        let timePlusOneMinute = self.outTime.addingTimeInterval(Double(secondsToAdd))
+//        dateComponents = calendar.components([Calendar.Unit.day, Calendar.Unit.month, Calendar.Unit.year, Calendar.Unit.weekOfYear, Calendar.Unit.hour, Calendar.Unit.minute, Calendar.Unit.second, Calendar.Unit.nanosecond], from: timePlusOneMinute as Date)
+        
+        dateComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: timePlusOneMinute as Date)
+        
+        let minStr = String(format: "%02d", dateComponents.minute!)
         let secStr = "00"
-        self.outTimeLbl.text = "\(dateComponents.hour):\(minStr):\(secStr)"
+        self.outTimeLbl.text = "\(dateComponents.hour!):\(minStr):\(secStr)"
         self.outTime = timePlusOneMinute
     }
     func roundDownStartDateToNextMinute(){
-        let calendar = NSCalendar.currentCalendar()
-        var dateComponents = calendar.components([NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year, NSCalendarUnit.WeekOfYear, NSCalendarUnit.Hour, NSCalendarUnit.Minute, NSCalendarUnit.Second, NSCalendarUnit.Nanosecond], fromDate: self.outTime)
-        let secondsToAdd = -60 - dateComponents.second
-        let timePlusOneMinute = self.outTime.dateByAddingTimeInterval(Double(secondsToAdd))
-        dateComponents = calendar.components([NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year, NSCalendarUnit.WeekOfYear, NSCalendarUnit.Hour, NSCalendarUnit.Minute, NSCalendarUnit.Second, NSCalendarUnit.Nanosecond], fromDate: timePlusOneMinute)
+        let calendar = Calendar.current
+//        var dateComponents = calendar.components([Calendar.Unit.day, Calendar.Unit.month, Calendar.Unit.year, Calendar.Unit.weekOfYear, Calendar.Unit.hour, Calendar.Unit.minute, Calendar.Unit.second, Calendar.Unit.nanosecond], from: self.outTime as Date)
+        var dateComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: self.outTime as Date)
+        let secondsToAdd = -60 - dateComponents.second!
+        let timePlusOneMinute = self.outTime.addingTimeInterval(Double(secondsToAdd))
+//        dateComponents = calendar.components([Calendar.Unit.day, Calendar.Unit.month, Calendar.Unit.year, Calendar.Unit.weekOfYear, Calendar.Unit.hour, Calendar.Unit.minute, Calendar.Unit.second, Calendar.Unit.nanosecond], from: timePlusOneMinute as Date)
+        dateComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: timePlusOneMinute as Date)
         
-        let minStr = String(format: "%02d", dateComponents.minute)
+        let minStr = String(format: "%02d", dateComponents.minute!)
         let secStr = "00"
-        self.outTimeLbl.text = "\(dateComponents.hour):\(minStr):\(secStr)"
+        self.outTimeLbl.text = "\(dateComponents.hour!):\(minStr):\(secStr)"
         self.outTime = timePlusOneMinute
     }
     
+    func roundStartDateToNextMinuteNow(){
+        let calendar = Calendar.current
+//        var dateComponents = calendar.components([Calendar.Unit.day, Calendar.Unit.month, Calendar.Unit.year, Calendar.Unit.weekOfYear, Calendar.Unit.hour, Calendar.Unit.minute, Calendar.Unit.second, Calendar.Unit.nanosecond], from: Date())
+        var dateComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: Date())
+
+        let secondsToAdd = 60 - dateComponents.second!
+        let timePlusOneMinute = Date().addingTimeInterval(Double(secondsToAdd))
+//        dateComponents = calendar.components([Calendar.Unit.day, Calendar.Unit.month, Calendar.Unit.year, Calendar.Unit.weekOfYear, Calendar.Unit.hour, Calendar.Unit.minute, Calendar.Unit.second, Calendar.Unit.nanosecond], from: timePlusOneMinute as Date)
+        dateComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: timePlusOneMinute as Date)
+        
+        let minStr = String(format: "%02d", dateComponents.minute!)
+        let secStr = "00"
+        self.outTimeLbl.text = "\(dateComponents.hour!):\(minStr):\(secStr)"
+        self.outTime = timePlusOneMinute as NSDate
+    }
 // OM Actions
-    
-    @IBAction func areaBtn(sender: AnyObject) {
-        tappedView()
+    func roundToPlaces(value: Double, decimalPlaces: Int) -> Double {
+        let divisor = pow(10.0, Double(decimalPlaces))
+        return round(value * divisor) / divisor
+    }
+    @IBAction func roundUpBtn(_ sender: AnyObject) {
+        print("RoundUp \(computedDistance) \(om)")
+        if computedDistance > om {
+            om = roundToPlaces(value: computedDistance,decimalPlaces: 1)
+
+            print(om)
+            updateOmLbl()
+            computeTime()
+        }
+    }
+    @IBAction func areaBtn(_ sender: AnyObject) {
+//        plusOmBtn(sender: self)
+//        self.roundUpBtn(self)
+        plusOmBtn(sender: AnyObject.self as AnyObject)
+
     }
     func decrementOM (value: Double) {
         if om > 0.0 {
@@ -310,7 +410,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         }
     }
     @IBAction func minusTenthBtn(sender: AnyObject) {
-        decrementOM(0.1)
+        decrementOM(value: 0.1)
         updateOmLbl()
         computeTime()
     }
@@ -319,8 +419,19 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         updateOmLbl()
         computeTime()
     }
+    
+    @IBAction func plus05Btn(_ sender: AnyObject) {
+        om += 0.05
+        updateOmLbl()
+        computeTime()
+    }
+    @IBAction func plus025Btn(_ sender: AnyObject) {
+        om += 0.025
+        updateOmLbl()
+        computeTime()
+    }
     @IBAction func minus01Btn(sender: AnyObject) {
-        decrementOM(0.01)
+        decrementOM(value: 0.01)
         updateOmLbl()
         computeTime()
     }
@@ -330,7 +441,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         computeTime()
     }
     @IBAction func minus001Btn(sender: AnyObject) {
-        decrementOM(0.001)
+        decrementOM(value: 0.001)
         updateOmLbl()
         computeTime()
     }
@@ -345,6 +456,10 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
             om += 0.01
         case 3:
             om += 0.001
+        case 4:
+            om += 0.05
+        case 5:
+            om += 0.025
         default:
             break;
         }
@@ -352,16 +467,20 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         computeTime()
     }
 
-    @IBAction func minusOmBtn(sender: AnyObject) {
+    @IBAction func minusOmBtn(_ sender: AnyObject) {
         switch distanceSegmentedControl.selectedSegmentIndex {
         case 0:
-            decrementOM(1.0)
+            decrementOM(value: 1.0)
         case 1:
-            decrementOM(0.1)
+            decrementOM(value: 0.1)
         case 2:
-            decrementOM(0.01)
+            decrementOM(value: 0.01)
         case 3:
-            decrementOM(0.001)
+            decrementOM(value: 0.001)
+        case 4:
+            decrementOM(value: 0.05)
+        case 5:
+            decrementOM(value: 0.025)
         default:
             break;
         }
@@ -374,7 +493,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         lastCalcOm = 0.00
         computedTime = 0.0
         computedTimeLbl.text = String(format: "%0.4f", computedTime)
-        self.splitBtn(self)
+        self.splitBtn(sender: self)
     }
     
     func updateOmLbl(){
@@ -384,18 +503,64 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
 //    Speed Actions
     @IBAction func speedStepper(sender: AnyObject) {
         nextSpeed = speedStepper.value
-        nextSpeedLbl.text = "\(Int(speedStepper.value))"
+        nextSpeedLbl.text = "\(speedStepper.value)"
+//        nextSpeedLbl.text = "\(Int(speedStepper.value))"
     }
     
     @IBAction func castBtn(sender: AnyObject) {
         speed = nextSpeed
-        speedLbl.text = "\(Int(speedStepper.value))"
-        self.items.insert("CAST \(speed) @ \(om) ctc \(String(format: "%0.4f", computedTime))",  atIndex:0)
+        speedLbl.text = "\(nextSpeed)"
+//        speedLbl.text = "\(speedStepper.value)"
+//        speedLbl.text = "\(Int(speedStepper.value))"
+        self.items.insert("CAST \(speed) @ \(om) ctc \(String(format: "%0.4f", computedTime))",  at:0)
         self.tableView.reloadData()
-        computedDistanceCast(om)
-        self.splitBtn(self)
+        computedDistanceCast(distance: om)
+        self.splitBtn(sender: self)
+//        let delayTime = DispatchTime.now() + .seconds(1)
+//        DispatchQueue.main.after(when: delayTime) {
+//            self.roundUpBtn(self)
+//        }
     }
     
+    
+
+    @IBAction func customSpeedBtn(_ sender: AnyObject) {
+//        var speedTextField: UITextField?
+        let alertController = UIAlertController(title: "UIAlertController", message: "UIAlertController With TextField", preferredStyle: .alert)
+        let ok = UIAlertAction(title: "OK", style: .default, handler: { (action) -> Void in
+//            print("Ok Button Pressed")
+            let textField = alertController.textFields![0] as UITextField
+            
+            if let value = textField.text?.doubleValue  {
+                print(value)
+            } else {
+//                print("invalid input")
+                return
+            }
+            
+            self.nextSpeedLbl.text = textField.text
+            self.nextSpeed = (textField.text! as NSString).doubleValue
+        })
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
+            print("Cancel Button Pressed")
+        }
+        alertController.addAction(ok)
+        alertController.addAction(cancel)
+        alertController.addTextField { (textField: UITextField!) in
+            textField.keyboardType = UIKeyboardType.decimalPad
+//            textField.text = self.speedLbl.text
+            textField.placeholder = "Enter Next Speed"
+        }
+        present(alertController, animated: true, completion: nil)
+    }
+
+    
+    func isSeconds () -> Bool {
+        return timeUnit == "seconds"
+    }
+    func isCents () -> Bool {
+        return timeUnit == "cents"
+    }
 //    Pause Gain TA Actions
     
     @IBAction func pgtaMinus(sender: AnyObject) {
@@ -413,7 +578,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
             break;
         }
 
-        doPGTA(value)
+        doPGTA(aValue: value)
     }
     
     @IBAction func pgtaPlus(sender: AnyObject) {
@@ -431,10 +596,14 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
             break;
         }
         
-        doPGTA(value)
+        doPGTA(aValue: value)
     }
     
-    func doPGTA(value: Double) {
+    func doPGTA(aValue: Double) {
+        var value = aValue
+        if isSeconds() {
+            value = value * (1.666667)
+        }
         var logString = "PGTA"
         switch pgtaSegmentedControl.selectedSegmentIndex {
         case 0:
@@ -454,7 +623,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         }
         computeTime()
         pgtaLbl.text = String(format: "%0.2f", pgta)
-        self.items.insert("\(logString) \(value) @ \(om)", atIndex:0)
+        self.items.insert("\(logString) \(value) @ \(om)",at:0)
         self.tableView.reloadData()
         pauses += value
 
@@ -463,32 +632,31 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     @IBAction func clearPGTABtn(sender: AnyObject) {
         pgta = 0.0
         pgtaLbl.text = String(format: "%0.2f", pgta)
-
     }
     
     
 // Table
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.items.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell:UITableViewCell = self.tableView.dequeueReusableCellWithIdentifier("cell")! as UITableViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell:UITableViewCell = self.tableView.dequeueReusableCell(withIdentifier: "cell")! as UITableViewCell
         
         cell.textLabel?.text = self.items[indexPath.row]
         
         return cell
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("You selected cell #\(indexPath.row)!")
     }
     
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == UITableViewCellEditingStyle.Delete {
-            items.removeAtIndex(indexPath.row)
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == UITableViewCellEditingStyle.delete {
+            items.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath as IndexPath], with: UITableViewRowAnimation.automatic)
         }
     }
     // End Table
@@ -508,17 +676,17 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         default:
             break;
         }
-        splitBtn(self)
+        splitBtn(sender: self)
     }
     
     @IBAction func share(sender: AnyObject){
         let mailString = NSMutableString()
         
         for item in self.items {
-            mailString.appendString("\(item)\n")
+            mailString.append("\(item)\n")
         }
         
-        let data = mailString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+        let data = mailString.data(using: String.Encoding.utf8.rawValue, allowLossyConversion: false)
         // Unwrapping the optional.
         if let content = data {
             print("NSData: \(content)")
@@ -538,15 +706,15 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         // As the .CSV is already attached, you can simply add an email
         // and press send.
         if MFMailComposeViewController.canSendMail() {
-            self.presentViewController(emailController, animated: true, completion: nil)
+            self.present(emailController, animated: true, completion: nil)
         }
         
         
     }
     // Delegate requirement
     
-    func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
-        controller.dismissViewControllerAnimated(true, completion: nil)
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
     }
     
 //    Game Controller
@@ -560,7 +728,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         controller.gamepad?.dpad.up.pressedChangedHandler = { (element: GCControllerElement, value: Float, pressed: Bool) in
             if pressed  && value > 0.2 {
                 print("dpad.up")
-                self.plusOmBtn(self)
+                self.plusOmBtn(sender: self)
             }
         }
         
@@ -588,13 +756,12 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         controller.gamepad?.buttonA.pressedChangedHandler = { (element: GCControllerElement, value: Float, pressed: Bool) in
             if pressed {
                 print("buttonA")
-                self.zeroOmBtn(self)
+                self.zeroOmBtn(sender: self)
             }
         }
         controller.gamepad?.buttonB.pressedChangedHandler = { (element: GCControllerElement, value: Float, pressed: Bool) in
             if pressed {
                 print("buttonB")
-//                self.nextMinuteBtn(self)
                 
             }
         }
@@ -614,7 +781,13 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         controller.gamepad?.rightShoulder.pressedChangedHandler = { (element: GCControllerElement, value: Float, pressed: Bool) in
             if pressed {
                 print("rightShoulder")
-                self.splitBtn(self)
+                self.splitBtn(sender: self)
+            }
+        }
+        controller.gamepad?.leftShoulder.pressedChangedHandler = { (element: GCControllerElement, value: Float, pressed: Bool) in
+            if pressed {
+                print("leftShoulder")
+                self.roundUpBtn(self)
             }
         }
     }
