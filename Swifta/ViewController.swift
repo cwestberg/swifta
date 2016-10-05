@@ -96,21 +96,21 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
 //        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.controllerDidConnect), name: "GCControllerDidConnectNotification" as NSNotification.Name, object: nil)
        
         
-        minusTenthBtn.layer.borderColor = UIColor.blue.cgColor
-        minusTenthBtn.layer.borderWidth = 1
-        minusTenthBtn.layer.cornerRadius = 20
-        plus01btn.layer.borderColor = UIColor.blue.cgColor
-        plus01btn.layer.borderWidth = 1
-        plus01btn.layer.cornerRadius = 20
-        minus01btn.layer.borderColor = UIColor.blue.cgColor
-        minus01btn.layer.borderWidth = 1
-        minus01btn.layer.cornerRadius = 20
-        plus001btn.layer.borderColor = UIColor.blue.cgColor
-        plus001btn.layer.borderWidth = 1
-        plus001btn.layer.cornerRadius = 20
-        minus001btn.layer.borderColor = UIColor.blue.cgColor
-        minus001btn.layer.borderWidth = 1
-        minus001btn.layer.cornerRadius = 20
+//        minusTenthBtn.layer.borderColor = UIColor.blue.cgColor
+//        minusTenthBtn.layer.borderWidth = 1
+//        minusTenthBtn.layer.cornerRadius = 20
+//        plus01btn.layer.borderColor = UIColor.blue.cgColor
+//        plus01btn.layer.borderWidth = 1
+//        plus01btn.layer.cornerRadius = 20
+//        minus01btn.layer.borderColor = UIColor.blue.cgColor
+//        minus01btn.layer.borderWidth = 1
+//        minus01btn.layer.cornerRadius = 20
+//        plus001btn.layer.borderColor = UIColor.blue.cgColor
+//        plus001btn.layer.borderWidth = 1
+//        plus001btn.layer.cornerRadius = 20
+//        minus001btn.layer.borderColor = UIColor.blue.cgColor
+//        minus001btn.layer.borderWidth = 1
+//        minus001btn.layer.cornerRadius = 20
 
 
         tapRec.addTarget(self, action: #selector(ViewController.tappedView))
@@ -261,7 +261,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     
     func computeTime() {
         computedTime += (60.0/speed) * (om - lastCalcOm)
-        print("computedTime \(computedTime)")
+//        print("computedTime \(computedTime)")
         lastCalcOm = om
         computedTimeLbl.text = String(format: "%0.4f", computedTime)
         
