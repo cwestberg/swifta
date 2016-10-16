@@ -168,12 +168,12 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         
         let interval = outTime.timeIntervalSince(self.tod as Date)
         if interval > 0 {
-            let calendar = Calendar.current
+//            let calendar = Calendar.current
 //            let datecomponenets = calendar.components(Calendar.Unit.second, from: tod as Date, to: outTime as Date)
-            let datecomponenets = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: outTime as Date)
+//            let datecomponenets = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: outTime as Date)
 
-            let seconds = datecomponenets.second
-            print("Seconds: \(seconds!) \(Int(Double(seconds!)/60.0)) \(60 - (second % 60)) \(interval)")
+//            let seconds = datecomponenets.second
+//            print("Seconds: \(seconds!) \(Int(Double(seconds!)/60.0)) \(60 - (second % 60)) \(interval)")
             if interval > 0.9 {
 //                TODO zero pad secs
                 let secondString = String(format: "%02d", 60 - second)
@@ -191,7 +191,11 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     func calcComputedDistance(){
         computedDistance += (tod.timeIntervalSince(lastCalcTime as Date)/3600 * speed)
         lastCalcTime = tod
-        computedDistance = (computedDistance - (pauses/36 * speed))
+//        if pauses > 0.0 {
+//            print("speed is \(speed) pauses = \(pauses)")
+//        }
+        computedDistance = (computedDistance - (pauses * (speed/60)))
+//        computedDistance = (computedDistance - (pauses/36 * speed))
         pauses = 0
         computedDistanceLbl.text = String(format: "%0.3f", computedDistance)
     }
@@ -318,9 +322,17 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         computeTime()
         computedDistanceChange()
     }
+    
+    @IBAction func bigSplitBtn(_ sender: AnyObject) {
+        self.splitBtn(sender: sender)
+    }
     @IBAction func splitBtn(sender: AnyObject) {
         computeTime()
         updateDelta()
+        let logString = "Split \(todLbl.text!)"
+        self.items.insert("\(logString) \(computedTimeLbl.text!) @ \(om)",at:0)
+        self.tableView.reloadData()
+
     }
     
     @IBAction func nowBtn(_ sender: AnyObject) {
@@ -600,10 +612,12 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     }
     
     func doPGTA(aValue: Double) {
-        var value = aValue
-        if isSeconds() {
-            value = value * (1.666667)
-        }
+        let value = aValue
+//        if isSeconds() {
+//            if value < 1.0 {
+//                value = value * (1.666667)
+//            }
+//        }
         var logString = "PGTA"
         switch pgtaSegmentedControl.selectedSegmentIndex {
         case 0:
