@@ -132,7 +132,7 @@
                                     <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
-                                    <action selector="pgtaPlusWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Fl5-EP-aig"/>
+                                    <action selector="customPGTABtn:" destination="BYZ-38-t0r" eventType="touchUpInside" id="APp-wF-pGi"/>
                                 </connections>
                             </button>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="tPw-iR-5R6">
@@ -247,10 +247,6 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <stackView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="qgW-wj-CQi">
-                                <frame key="frameInset" minX="666" minY="355" width="31" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </stackView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HFF-Iu-nHW">
                                 <color key="backgroundColor" red="0.30302563919999997" green="1" blue="0.23327806000000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
@@ -328,7 +324,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Speed"/>
                                 <connections>
-                                    <action selector="customSpeedBtn:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UdE-Hr-1I1"/>
+                                    <action selector="customSpeedBtn:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3wt-uv-8vs"/>
                                 </connections>
                             </button>
                         </subviews>

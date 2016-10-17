@@ -264,7 +264,12 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
 //   Computing
     
     func computeTime() {
-        computedTime += (60.0/speed) * (om - lastCalcOm)
+        if speed == 0.0  {
+            computedTime = pgta
+        }
+        else {
+            computedTime += (60.0/speed) * (om - lastCalcOm)
+        }
 //        print("computedTime \(computedTime)")
         lastCalcOm = om
         computedTimeLbl.text = String(format: "%0.4f", computedTime)
@@ -286,10 +291,17 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
             units = units + 1000.01
             print("units \(units) secs \(units * 0.6)")
         }
+        if units >= 1000.0 {
+            print(">1 \(units)")
+            units = 0.0
+        }
         if isCents() {
 //            let centStr = String(format: "%02d", Int((Double(dateComponents.second) * 1.66667)))
-
-            let centStr = String(format: "%03d", Int(units))
+//            if units >= 1.0 {
+//                units = 0.0
+//            }
+            let centStr = String(format: "%03d", Int(units + 0.00001))
+            print("centstr \(Int(units)) \(units + 0.00001)")
             self.ctcLbl.text = "\(dateComponents.hour!):\(minStr).\(centStr)"
         } else {
 //            let secStr = String(format: "%02d", dateComponents.second)
@@ -330,7 +342,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         computeTime()
         updateDelta()
         let logString = "Split \(todLbl.text!)"
-        self.items.insert("\(logString) \(computedTimeLbl.text!) @ \(om)",at:0)
+        self.items.insert("\(logString) \(computedTimeLbl.text!) \(deltaLbl.text!) @ \(om)",at:0)
         self.tableView.reloadData()
 
     }
@@ -534,11 +546,37 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
 //        }
     }
     
+    // Dialogs
     
+    @IBAction func customPGTABtn(_ sender: AnyObject) {
+        let alertController = UIAlertController(title: "Enter Pause/Gain/TA", message: "Enter Value", preferredStyle: .alert)
+        let ok = UIAlertAction(title: "OK", style: .default, handler: { (action) -> Void in
+            let textField = alertController.textFields![0] as UITextField
+            
+            if let value = textField.text?.doubleValue  {
+                print(value)
+            } else {
+                return
+            }
+            
+            self.doPGTA(aValue: (textField.text! as NSString).doubleValue)
+        })
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
+            print("Cancel Button Pressed")
+        }
+        alertController.addAction(ok)
+        alertController.addAction(cancel)
+        alertController.addTextField { (textField: UITextField!) in
+            textField.keyboardType = UIKeyboardType.decimalPad
+            textField.placeholder = "Enter Pause"
+        }
+        present(alertController, animated: true, completion: nil)
+    }
+
 
     @IBAction func customSpeedBtn(_ sender: AnyObject) {
 //        var speedTextField: UITextField?
-        let alertController = UIAlertController(title: "UIAlertController", message: "UIAlertController With TextField", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Enter Next Speed", message: "Value for Nest Speed", preferredStyle: .alert)
         let ok = UIAlertAction(title: "OK", style: .default, handler: { (action) -> Void in
 //            print("Ok Button Pressed")
             let textField = alertController.textFields![0] as UITextField
@@ -612,12 +650,11 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     }
     
     func doPGTA(aValue: Double) {
-        let value = aValue
-//        if isSeconds() {
-//            if value < 1.0 {
-//                value = value * (1.666667)
-//            }
-//        }
+        // convert to cents or seconds
+        var value = aValue/100.0
+        if isSeconds() {
+            value = value * (1.666667)
+        }
         var logString = "PGTA"
         switch pgtaSegmentedControl.selectedSegmentIndex {
         case 0:
