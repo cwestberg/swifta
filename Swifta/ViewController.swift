@@ -683,6 +683,9 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     @IBAction func clearPGTABtn(sender: AnyObject) {
         pgta = 0.0
         pgtaLbl.text = String(format: "%0.2f", pgta)
+        self.items = []
+        self.tableView.reloadData()
+
     }
     
     
