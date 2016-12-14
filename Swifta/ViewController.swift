@@ -55,6 +55,13 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     @IBOutlet weak var minus01btn: UIButton!
     @IBOutlet weak var plus001btn: UIButton!
     @IBOutlet weak var minus001btn: UIButton!
+    @IBOutlet weak var pgtaBtn: UIButton!
+    @IBOutlet weak var clrPgtaBtn: UIButton!
+    
+    @IBOutlet weak var ccNextSpeedLbl: UILabel!
+    @IBOutlet weak var ccSpeedLbl: UILabel!
+    @IBOutlet weak var ccPgtaLbl: UILabel!
+    @IBOutlet weak var areaBtbOutlet: UIButton!
     
     var om = 0.00
     var startOm = 0.0
@@ -73,6 +80,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     var pauses = 0.0
     var items: [String] = []
     var outTimeStepperValue = 0.0
+    var isHidden = false
 
     
     let tapRec = UITapGestureRecognizer()
@@ -84,10 +92,14 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         // Do any additional setup after loading the view, typically from a nib.
         
         distanceSegmentedControl.selectedSegmentIndex = 1
-        pgtaValueSegmentedControl.selectedSegmentIndex = 1
-        speedLbl.text = "\(speedStepper.value)"
+        areaBtbOutlet.setTitle("0.1", for: UIControlState.normal)
+
+//        pgtaValueSegmentedControl.selectedSegmentIndex = 1
+//        speedLbl.text = "\(speed)"
+        ccSpeedLbl.text = "\(speed)"
 //        speedLbl.text = "\(Int(speedStepper.value))"
-        nextSpeedLbl.text = "\(Int(speedStepper.value))"
+//        nextSpeedLbl.text = "\(Int(speed))"
+        ccNextSpeedLbl.text = "\(Int(speed))"
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
 //        NotificationCenter.default().addObserver(self, selector: #selector), name: "GCControllerDidConnectNotification", object: nil)
@@ -419,6 +431,48 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
             computeTime()
         }
     }
+    
+    @IBAction func hideBtn(_ sender: Any) {
+        if isHidden == false {
+            pgtaSegmentedControl.isHidden = true
+            pgtaLbl.isHidden = true
+            isHidden = true
+            pgtaBtn.isHidden = true
+            unitsSegmentedControl.isHidden = true
+            timeAdjustStepper.isHidden = true
+            timeAdjustStepperLabel.isHidden = true
+            clrPgtaBtn.isHidden = true
+        } else {
+            isHidden = false
+            pgtaLbl.isHidden = false
+            pgtaBtn.isHidden = false
+            pgtaSegmentedControl.isHidden = false
+            unitsSegmentedControl.isHidden = false
+            timeAdjustStepper.isHidden = false
+            timeAdjustStepperLabel.isHidden = false
+            clrPgtaBtn.isHidden = false
+        }
+    }
+    
+
+    @IBAction func distanceSegmentedControlValueChanged(_ sender: Any) {
+        switch distanceSegmentedControl.selectedSegmentIndex {
+        case 0:
+            areaBtbOutlet.setTitle("1.0", for: UIControlState.normal)
+        case 1:
+            areaBtbOutlet.setTitle("0.1", for: UIControlState.normal)
+        case 2:
+            areaBtbOutlet.setTitle("0.01", for: UIControlState.normal)
+        case 3:
+            areaBtbOutlet.setTitle("0.001", for: UIControlState.normal)
+        case 4:
+            areaBtbOutlet.setTitle("0.05", for: UIControlState.normal)
+        case 5:
+            areaBtbOutlet.setTitle("0.025", for: UIControlState.normal)
+        default:
+            break;
+        }
+    }
     @IBAction func areaBtn(_ sender: AnyObject) {
 //        plusOmBtn(sender: self)
 //        self.roundUpBtn(self)
@@ -528,12 +582,17 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     @IBAction func speedStepper(sender: AnyObject) {
         nextSpeed = speedStepper.value
         nextSpeedLbl.text = "\(speedStepper.value)"
+        ccNextSpeedLbl.text = "\(speedStepper.value)"
 //        nextSpeedLbl.text = "\(Int(speedStepper.value))"
     }
     
+    @IBAction func ccCastBtn(_ sender: Any) {
+        self.castBtn(sender: sender as AnyObject)
+    }
     @IBAction func castBtn(sender: AnyObject) {
         speed = nextSpeed
-        speedLbl.text = "\(nextSpeed)"
+//        speedLbl.text = "\(nextSpeed)"
+        ccSpeedLbl.text = "\(nextSpeed)"
 //        speedLbl.text = "\(speedStepper.value)"
 //        speedLbl.text = "\(Int(speedStepper.value))"
         self.items.insert("CAST \(speed) @ \(om) ctc \(String(format: "%0.4f", computedTime))",  at:0)
@@ -573,6 +632,10 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         present(alertController, animated: true, completion: nil)
     }
 
+ 
+    @IBAction func ccNextSpeedBtn(_ sender: Any) {
+        self.customSpeedBtn(sender as AnyObject)
+    }
 
     @IBAction func customSpeedBtn(_ sender: AnyObject) {
 //        var speedTextField: UITextField?
@@ -588,7 +651,8 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
                 return
             }
             
-            self.nextSpeedLbl.text = textField.text
+//            self.nextSpeedLbl.text = textField.text
+            self.ccNextSpeedLbl.text = textField.text
             self.nextSpeed = (textField.text! as NSString).doubleValue
         })
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
@@ -674,6 +738,8 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         }
         computeTime()
         pgtaLbl.text = String(format: "%0.2f", pgta)
+        ccPgtaLbl.text = String(format: "%0.2f", pgta)
+
         self.items.insert("\(logString) \(value) @ \(om)",at:0)
         self.tableView.reloadData()
         pauses += value
@@ -683,6 +749,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     @IBAction func clearPGTABtn(sender: AnyObject) {
         pgta = 0.0
         pgtaLbl.text = String(format: "%0.2f", pgta)
+        ccPgtaLbl.text = String(format: "%0.2f", pgta)
         self.items = []
         self.tableView.reloadData()
 
