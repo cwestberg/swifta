@@ -360,12 +360,30 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     }
     
     @IBAction func nowBtn(_ sender: AnyObject) {
-        zeroOmBtn(sender: self)
-        roundStartDateToNextMinuteNow()
-        computeTime()
-        computedDistanceChange()
-        outTimeStepperValue = 0.0
-        outTimeStepper.value = 0.0
+        
+        let refreshAlert = UIAlertController(title: "Now", message: "Set Time Out to next minute", preferredStyle: UIAlertControllerStyle.alert)
+        
+        refreshAlert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
+            self.zeroOmBtn(sender: self)
+            self.roundStartDateToNextMinuteNow()
+            self.computeTime()
+            self.computedDistanceChange()
+            self.outTimeStepperValue = 0.0
+            self.outTimeStepper.value = 0.0
+        }))
+        
+        refreshAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+            print("Handle Cancel Logic here")
+        }))
+        
+        present(refreshAlert, animated: true, completion: nil)
+        
+//        zeroOmBtn(sender: self)
+//        roundStartDateToNextMinuteNow()
+//        computeTime()
+//        computedDistanceChange()
+//        outTimeStepperValue = 0.0
+//        outTimeStepper.value = 0.0
     }
     
     
